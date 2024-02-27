@@ -1,0 +1,31 @@
+name: Event Filter
+on:
+  pull_request: 
+    types: 
+      - opened
+  workflow_dispatch: 
+  push: 
+    branches:
+      - main
+      - 'dev-*' # *: Matches zero or more characters, but does not match the / character. For example, dev-new dev-this-is-new.
+      - 'feat/**' # **: Matches zero or more of any character. example: feat/new feat/new/button
+    paths-ignore:
+      - '.github/workflow'
+jobs:
+  deploy: 
+    runs-on: ubuntu-latest
+    steps:
+      - name: Output event data
+        run: echo "${{ toJson(github.event) }}"
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Install NodeJs
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+      - name: Install Dependency
+        run: npm ci
+      - name: Run Test
+        run: npm test
+      - name: Build Code
+        run: npm run build
